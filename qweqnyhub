@@ -106,3 +106,86 @@ local Input = MainTab:CreateInput({
         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Text)
    end,
 })
+local flying = false
+local flySpeed = 50 -- Uçma hızı, istediğin değeri ayarla
+local flyConnection
+
+-- Uçmayı Başlat
+local function startFlying()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    flying = true
+
+    flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
+        if flying then
+            local camera = workspace.CurrentCamera
+            local moveDirection = Vector3.zero
+
+            local userInputService = game:GetService("UserInputService")
+            if userInputService:IsKeyDown(Enum.KeyCode.W) then
+                moveDirection = moveDirection + camera.CFrame.LookVector
+            end
+            if userInputService:IsKeyDown(Enum.KeyCode.S) then
+                moveDirection = moveDirection - camera.CFrame.LookVector
+            end
+            if userInputService:IsKeyDown(Enum.KeyCode.A) then
+                moveDirection = moveDirection - camera.CFrame.RightVector
+            end
+            if userInputService:IsKeyDown(Enum.KeyCode.D) then
+                moveDirection = moveDirection + camera.CFrame.RightVector
+            end
+
+            humanoidRootPart.Velocity = moveDirection.Unit * flySpeed
+        end
+    end)
+end
+
+-- Uçmayı Durdur
+local function stopFlying()
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
+    end
+
+    flying = false
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    humanoidRootPart.Velocity = Vector3.zero
+end
+
+-- Fly Toggle Butonu
+local FlyButton = MainTab:CreateButton({
+    Name = "Fly Toggle", -- Düğmenin adı
+    Callback = function()
+        if flying then
+            stopFlying()
+            Rayfield:Notify({
+                Title = "Fly Disabled",
+                Content = "You have stopped flying.",
+                Duration = 3,
+                Actions = {
+                    Okay = {
+                        Name = "Got it!",
+                        Callback = function() end,
+                    },
+                },
+            })
+        else
+            startFlying()
+            Rayfield:Notify({
+                Title = "Fly Enabled",
+                Content = "You are now flying.",
+                Duration = 3,
+                Actions = {
+                    Okay = {
+                        Name = "Got it!",
+                        Callback = function() end,
+                    },
+                },
+            })
+        end
+    end,
+})
