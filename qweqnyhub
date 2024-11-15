@@ -110,54 +110,61 @@ local flying = false
 local speed = 50 -- Uçma hızı
 local bodyVelocity
 local bodyGyro
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
+-- Uçmayı Başlat
 local function startFlying()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
     flying = true
 
-    -- BodyVelocity ve BodyGyro ekle
-    bodyGyro = Instance.new("BodyGyro", humanoidRootPart)
+    -- BodyGyro ve BodyVelocity ekle
+    bodyGyro = Instance.new("BodyGyro")
     bodyGyro.P = 9e4
     bodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
     bodyGyro.CFrame = humanoidRootPart.CFrame
+    bodyGyro.Parent = humanoidRootPart
 
-    bodyVelocity = Instance.new("BodyVelocity", humanoidRootPart)
+    bodyVelocity = Instance.new("BodyVelocity")
     bodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
     bodyVelocity.Velocity = Vector3.zero
+    bodyVelocity.Parent = humanoidRootPart
 
-    -- Kontroller
-    game:GetService("RunService").RenderStepped:Connect(function()
+    -- Uçuş hareketlerini kontrol et
+    RunService.RenderStepped:Connect(function()
         if not flying then return end
-        local camera = workspace.CurrentCamera
+        
         local moveDirection = Vector3.zero
+        local camera = workspace.CurrentCamera
 
-        local userInputService = game:GetService("UserInputService")
-        if userInputService:IsKeyDown(Enum.KeyCode.W) then
+        -- Kamera kontrolüne göre hareket
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then
             moveDirection = moveDirection + camera.CFrame.LookVector
         end
-        if userInputService:IsKeyDown(Enum.KeyCode.S) then
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then
             moveDirection = moveDirection - camera.CFrame.LookVector
         end
-        if userInputService:IsKeyDown(Enum.KeyCode.A) then
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then
             moveDirection = moveDirection - camera.CFrame.RightVector
         end
-        if userInputService:IsKeyDown(Enum.KeyCode.D) then
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then
             moveDirection = moveDirection + camera.CFrame.RightVector
         end
-        if userInputService:IsKeyDown(Enum.KeyCode.Space) then
-            moveDirection = moveDirection + Vector3.new(0, 1, 0)
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            moveDirection = moveDirection + Vector3.new(0, 1, 0) -- Yukarı
         end
-        if userInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-            moveDirection = moveDirection - Vector3.new(0, 1, 0)
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+            moveDirection = moveDirection - Vector3.new(0, 1, 0) -- Aşağı
         end
 
+        -- Uçuş hızı ve yönü
         bodyVelocity.Velocity = moveDirection.Unit * speed
     end)
 end
 
+-- Uçmayı Durdur
 local function stopFlying()
     if bodyVelocity then
         bodyVelocity:Destroy()
@@ -167,7 +174,6 @@ local function stopFlying()
         bodyGyro:Destroy()
         bodyGyro = nil
     end
-
     flying = false
 end
 
