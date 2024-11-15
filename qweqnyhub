@@ -106,95 +106,133 @@ local Input = MainTab:CreateInput({
         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Text)
    end,
 })
-local flying = false
-local speed = 50 -- Uçma hızı
-local bodyVelocity
-local bodyGyro
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- Uçmayı Başlat
-local function startFlying()
-    flying = true
+local Window = Rayfield:CreateWindow({
+    Name = "🔥 Qweqny Hub BETA",
+    LoadingTitle = "🔥 Qweqny Hub BETA",
+    LoadingSubtitle = "by Qweqny",
+    ConfigurationSaving = {
+        Enabled = false,
+        FolderName = nil, -- Create a custom folder for your hub/game
+        FileName = "Qweqny hub"
+    },
+    Discord = {
+        Enabled = false,
+        Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
+        RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+    },
+    KeySystem = false, -- Set this to true to use our key system
+    KeySettings = {
+        Title = "Key | Youtube Hub",
+        Subtitle = "Key System",
+        Note = "Key In Discord Server",
+        FileName = "YoutubeHubKey1", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+        SaveKey = false, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+        GrabKeyFromSite = true, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+        Key = {"https://pastebin.com/raw/AtgzSPWK"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+    }
+})
 
-    -- BodyGyro ve BodyVelocity ekle
-    bodyGyro = Instance.new("BodyGyro")
-    bodyGyro.P = 9e4
-    bodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
-    bodyGyro.CFrame = humanoidRootPart.CFrame
-    bodyGyro.Parent = humanoidRootPart
+local MainTab = Window:CreateTab("🏠 Home", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("Main")
 
-    bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-    bodyVelocity.Velocity = Vector3.zero
-    bodyVelocity.Parent = humanoidRootPart
-
-    -- Uçuş hareketlerini kontrol et
-    RunService.RenderStepped:Connect(function()
-        if not flying then return end
-        
-        local moveDirection = Vector3.zero
-        local camera = workspace.CurrentCamera
-
-        -- Kamera kontrolüne göre hareket
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-            moveDirection = moveDirection + camera.CFrame.LookVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then
-            moveDirection = moveDirection - camera.CFrame.LookVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then
-            moveDirection = moveDirection - camera.CFrame.RightVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then
-            moveDirection = moveDirection + camera.CFrame.RightVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-            moveDirection = moveDirection + Vector3.new(0, 1, 0) -- Yukarı
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-            moveDirection = moveDirection - Vector3.new(0, 1, 0) -- Aşağı
-        end
-
-        -- Uçuş hızı ve yönü
-        bodyVelocity.Velocity = moveDirection.Unit * speed
-    end)
-end
-
--- Uçmayı Durdur
-local function stopFlying()
-    if bodyVelocity then
-        bodyVelocity:Destroy()
-        bodyVelocity = nil
-    end
-    if bodyGyro then
-        bodyGyro:Destroy()
-        bodyGyro = nil
-    end
-    flying = false
-end
-
--- Fly Toggle GUI Butonu
-local FlyButton = MainTab:CreateButton({
-    Name = "Fly Toggle",
+local Button = MainTab:CreateButton({
+    Name = "Toggle Fly",
     Callback = function()
-        if flying then
-            stopFlying()
-            Rayfield:Notify({
-                Title = "Fly Disabled",
-                Content = "You have stopped flying.",
-                Duration = 3,
-            })
-        else
-            startFlying()
-            Rayfield:Notify({
-                Title = "Fly Enabled",
-                Content = "You are now flying.",
-                Duration = 3,
-            })
+        -- Fly script starts here
+        local plr = game.Players.LocalPlayer
+        local mouse = plr:GetMouse()
+
+        local player = plr
+        local flying = false
+        local speed = 10
+        local keys = {a=false, d=false, w=false, s=false}
+
+        if workspace:FindFirstChild("Core") then
+            workspace.Core:Destroy()
         end
+
+        local Core = Instance.new("Part")
+        Core.Name = "Core"
+        Core.Size = Vector3.new(0.05, 0.05, 0.05)
+        Core.Parent = workspace
+
+        local Weld = Instance.new("Weld", Core)
+        Weld.Part0 = Core
+        Weld.Part1 = player.Character.LowerTorso
+        Weld.C0 = CFrame.new(0, 0, 0)
+
+        local torso = workspace.Core
+        local function startFlying()
+            local pos = Instance.new("BodyPosition", torso)
+            local gyro = Instance.new("BodyGyro", torso)
+            pos.Name = "EPIXPOS"
+            pos.maxForce = Vector3.new(math.huge, math.huge, math.huge)
+            pos.position = torso.Position
+            gyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+            gyro.cframe = torso.CFrame
+
+            repeat
+                wait()
+                player.Character.Humanoid.PlatformStand = true
+                local new = gyro.cframe - gyro.cframe.p + pos.position
+                if not keys.w and not keys.s and not keys.a and not keys.d then
+                    speed = 5
+                end
+                if keys.w then
+                    new = new + workspace.CurrentCamera.CoordinateFrame.lookVector * speed
+                end
+                if keys.s then
+                    new = new - workspace.CurrentCamera.CoordinateFrame.lookVector * speed
+                end
+                if keys.d then
+                    new = new * CFrame.new(speed, 0, 0)
+                end
+                if keys.a then
+                    new = new * CFrame.new(-speed, 0, 0)
+                end
+                pos.position = new.p
+                if keys.w then
+                    gyro.cframe = workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad(speed * 0), 0, 0)
+                elseif keys.s then
+                    gyro.cframe = workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(math.rad(speed * 0), 0, 0)
+                else
+                    gyro.cframe = workspace.CurrentCamera.CoordinateFrame
+                end
+            until not flying
+            if gyro then gyro:Destroy() end
+            if pos then pos:Destroy() end
+            player.Character.Humanoid.PlatformStand = false
+        end
+
+        mouse.KeyDown:Connect(function(key)
+            if key == "w" then
+                keys.w = true
+            elseif key == "s" then
+                keys.s = true
+            elseif key == "a" then
+                keys.a = true
+            elseif key == "d" then
+                keys.d = true
+            elseif key == "x" then
+                flying = not flying
+                if flying then
+                    startFlying()
+                end
+            end
+        end)
+
+        mouse.KeyUp:Connect(function(key)
+            if key == "w" then
+                keys.w = false
+            elseif key == "s" then
+                keys.s = false
+            elseif key == "a" then
+                keys.a = false
+            elseif key == "d" then
+                keys.d = false
+            end
+        end)
     end,
 })
