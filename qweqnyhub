@@ -108,9 +108,9 @@ local Input = MainTab:CreateInput({
 })
 local flying = false
 local speed = 50 -- Uçma hızı
-local flyControl
+local bodyVelocity
+local bodyGyro
 
--- Uçmayı Başlat
 local function startFlying()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
@@ -118,22 +118,23 @@ local function startFlying()
 
     flying = true
 
-    -- BodyVelocity ve BodyGyro eklenir
-    local bodyGyro = Instance.new("BodyGyro", humanoidRootPart)
+    -- BodyVelocity ve BodyGyro ekle
+    bodyGyro = Instance.new("BodyGyro", humanoidRootPart)
     bodyGyro.P = 9e4
     bodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
     bodyGyro.CFrame = humanoidRootPart.CFrame
 
-    local bodyVelocity = Instance.new("BodyVelocity", humanoidRootPart)
+    bodyVelocity = Instance.new("BodyVelocity", humanoidRootPart)
     bodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
     bodyVelocity.Velocity = Vector3.zero
 
-    -- Uçuş kontrolü
-    flyControl = game:GetService("RunService").RenderStepped:Connect(function()
+    -- Kontroller
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if not flying then return end
         local camera = workspace.CurrentCamera
         local moveDirection = Vector3.zero
-        local userInputService = game:GetService("UserInputService")
 
+        local userInputService = game:GetService("UserInputService")
         if userInputService:IsKeyDown(Enum.KeyCode.W) then
             moveDirection = moveDirection + camera.CFrame.LookVector
         end
@@ -157,28 +158,20 @@ local function startFlying()
     end)
 end
 
--- Uçmayı Durdur
 local function stopFlying()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-    -- Eklenen BodyGyro ve BodyVelocity'i kaldır
-    for _, instance in pairs(humanoidRootPart:GetChildren()) do
-        if instance:IsA("BodyGyro") or instance:IsA("BodyVelocity") then
-            instance:Destroy()
-        end
+    if bodyVelocity then
+        bodyVelocity:Destroy()
+        bodyVelocity = nil
     end
-
-    if flyControl then
-        flyControl:Disconnect()
-        flyControl = nil
+    if bodyGyro then
+        bodyGyro:Destroy()
+        bodyGyro = nil
     end
 
     flying = false
 end
 
--- GUI Butonu
+-- Fly Toggle GUI Butonu
 local FlyButton = MainTab:CreateButton({
     Name = "Fly Toggle",
     Callback = function()
@@ -188,12 +181,6 @@ local FlyButton = MainTab:CreateButton({
                 Title = "Fly Disabled",
                 Content = "You have stopped flying.",
                 Duration = 3,
-                Actions = {
-                    Okay = {
-                        Name = "Got it!",
-                        Callback = function() end,
-                    },
-                },
             })
         else
             startFlying()
@@ -201,14 +188,7 @@ local FlyButton = MainTab:CreateButton({
                 Title = "Fly Enabled",
                 Content = "You are now flying.",
                 Duration = 3,
-                Actions = {
-                    Okay = {
-                        Name = "Got it!",
-                        Callback = function() end,
-                    },
-                },
             })
         end
     end,
 })
-
