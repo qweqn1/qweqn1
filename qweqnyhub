@@ -206,3 +206,35 @@ local Button = MainTab:CreateButton({
         end)
     end,
 })
+
+local Button = MainTab:CreateButton({
+    Name = "Toggle Spin",
+    Callback = function()
+        -- Spin'i etkinleştir veya devre dışı bırak
+        _G.spinActive = not _G.spinActive
+
+        if _G.spinStarted == nil then
+            _G.spinStarted = true
+
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Qweqny Hub",
+                Text = "Spin Script Activated!",
+                Duration = 5
+            })
+
+            -- Spin döngüsü
+            spawn(function()
+                while true do
+                    if _G.spinActive then
+                        -- Sabit hızda spin işlemi
+                        local character = game.Players.LocalPlayer.Character
+                        if character and character.PrimaryPart then
+                            character:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.Angles(0, math.rad(99), 0))
+                        end
+                    end
+                    wait(0.05) -- Spin güncelleme süresi
+                end
+            end)
+        end
+    end,
+})
