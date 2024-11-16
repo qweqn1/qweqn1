@@ -303,33 +303,43 @@ local Button = MainTab:CreateButton({
             
             game.StarterGui:SetCore("SendNotification", {
                 Title = "Qweqny Hub",
-                Text = "Bang Command Ready!",
+                Text = "Bang Command Initialized!",
                 Duration = 5
             })
 
+            -- Loop for Bang Command
             spawn(function()
                 while true do
                     if _G.bangActive and _G.targetPlayer then
+                        -- Find Player
                         local targetPlayer = game.Players:FindFirstChild(_G.targetPlayer)
-                        if targetPlayer and targetPlayer.Character then
+
+                        if targetPlayer then
                             local character = targetPlayer.Character
+                            if character and character:FindFirstChildOfClass("Humanoid") then
+                                local humanoid = character:FindFirstChildOfClass("Humanoid")
 
-                            -- Bang animasyonunun uygulanması
-                            local humanoid = character:FindFirstChildOfClass("Humanoid")
-                            if humanoid then
+                                -- Load and Play Animation
                                 local anim = Instance.new("Animation")
-                                anim.AnimationId = "rbxassetid://148840371" -- İnfinite Yield'in kullandığı bang animasyonunun ID'si
+                                anim.AnimationId = "rbxassetid://148840371" -- Bang animasyonu
                                 local animTrack = humanoid:LoadAnimation(anim)
+                                
                                 animTrack:Play()
-
-                                -- Animasyon döngüsü
-                                wait(3) -- Animasyon süresini ayarla
+                                wait(3) -- Animation playback duration
                                 animTrack:Stop()
+                            else
+                                -- If Humanoid is Missing
+                                game.StarterGui:SetCore("SendNotification", {
+                                    Title = "Qweqny Hub",
+                                    Text = "Humanoid not found in target player!",
+                                    Duration = 5
+                                })
                             end
                         else
+                            -- If Player Name is Invalid
                             game.StarterGui:SetCore("SendNotification", {
                                 Title = "Qweqny Hub",
-                                Text = "Player not found or invalid name.",
+                                Text = "Player not found or invalid name!",
                                 Duration = 5
                             })
                         end
