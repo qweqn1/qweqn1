@@ -238,3 +238,48 @@ local Button = MainTab:CreateButton({
         end
     end,
 })
+
+local Button = MainTab:CreateButton({
+    Name = "Toggle Noclip",
+    Callback = function()
+        -- Noclip'i etkinleştir veya devre dışı bırak
+        _G.noclipActive = not _G.noclipActive
+
+        if _G.noclipStarted == nil then
+            _G.noclipStarted = true
+
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Qweqny Hub",
+                Text = "Noclip Script Activated!",
+                Duration = 5
+            })
+
+            -- Noclip döngüsü
+            spawn(function()
+                while true do
+                    if _G.noclipActive then
+                        local character = game.Players.LocalPlayer.Character
+                        if character then
+                            for _, v in pairs(character:GetDescendants()) do
+                                if v:IsA("BasePart") and v.CanCollide then
+                                    v.CanCollide = false
+                                end
+                            end
+                        end
+                    else
+                        -- Noclip devre dışı ise CanCollide'ı eski haline getir
+                        local character = game.Players.LocalPlayer.Character
+                        if character then
+                            for _, v in pairs(character:GetDescendants()) do
+                                if v:IsA("BasePart") then
+                                    v.CanCollide = true
+                                end
+                            end
+                        end
+                    end
+                    wait(0.1) -- Daha iyi performans için döngü hızı
+                end
+            end)
+        end
+    end,
+})
