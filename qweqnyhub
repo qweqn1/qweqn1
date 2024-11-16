@@ -30,83 +30,88 @@ local MainTab = Window:CreateTab("🏠 Home", nil) -- Title, Image
 local MainSection = MainTab:CreateSection("Main")
 
 Rayfield:Notify({
-   Title = "You executed the script",
-   Content = "Very cool gui",
+   Title = "By:Qweqny",
+   Content = "Kurucunun Discordu:qweqny",
    Duration = 5,
    Image = 13047715178,
    Actions = { -- Notification Buttons
       Ignore = {
          Name = "Okay!",
          Callback = function()
-         print("The user tapped Okay!")
-      end
+            print("The user tapped Okay!")
+         end
+      }
    },
-},
 })
 
+-- Infinite Jump Toggle Button
 local Button = MainTab:CreateButton({
    Name = "Infinite Jump Toggle",
    Callback = function()
-       --Toggles the infinite jump between on or off on every script run
-_G.infinjump = not _G.infinjump
+       -- Toggles the infinite jump between on or off on every script run
+       _G.infinjump = not _G.infinjump
 
-if _G.infinJumpStarted == nil then
-	--Ensures this only runs once to save resources
-	_G.infinJumpStarted = true
-	
-	--Notifies readiness
-	game.StarterGui:SetCore("SendNotification", {Title="Youtube Hub"; Text="Infinite Jump Activated!"; Duration=5;})
+       if _G.infinJumpStarted == nil then
+           -- Ensures this only runs once to save resources
+           _G.infinJumpStarted = true
 
-	--The actual infinite jump
-	local plr = game:GetService('Players').LocalPlayer
-	local m = plr:GetMouse()
-	m.KeyDown:connect(function(k)
-		if _G.infinjump then
-			if k:byte() == 32 then
-			humanoid = game:GetService'Players'.LocalPlayer.Character:FindFirstChildOfClass('Humanoid')
-			humanoid:ChangeState('Jumping')
-			wait()
-			humanoid:ChangeState('Seated')
-			end
-		end
-	end)
-end
+           -- Notifies readiness
+           game.StarterGui:SetCore("SendNotification", {Title="Youtube Hub"; Text="Infinite Jump Activated!"; Duration=5;})
+
+           -- The actual infinite jump
+           local plr = game:GetService('Players').LocalPlayer
+           local m = plr:GetMouse()
+           m.KeyDown:connect(function(k)
+               if _G.infinjump then
+                   if k:byte() == 32 then
+                       humanoid = game:GetService'Players'.LocalPlayer.Character:FindFirstChildOfClass('Humanoid')
+                       humanoid:ChangeState('Jumping')
+                       wait()
+                       humanoid:ChangeState('Seated')
+                   end
+               end
+           end)
+       end
    end,
 })
 
+-- WalkSpeed Slider
 local Slider = MainTab:CreateSlider({
    Name = "WalkSpeed Slider",
    Range = {1, 350},
    Increment = 1,
    Suffix = "Speed",
    CurrentValue = 16,
-   Flag = "sliderws", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Flag = "sliderws", -- A flag is the identifier for the configuration file
    Callback = function(Value)
         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Value)
    end,
 })
 
+-- JumpPower Slider
 local Slider = MainTab:CreateSlider({
    Name = "JumpPower Slider",
    Range = {1, 350},
    Increment = 1,
-   Suffix = "Speed",
+   Suffix = "Power",
    CurrentValue = 16,
-   Flag = "sliderjp", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Flag = "sliderjp", -- A flag is the identifier for the configuration file
    Callback = function(Value)
         game.Players.LocalPlayer.Character.Humanoid.JumpPower = (Value)
    end,
 })
 
+-- Input for Walkspeed
 local Input = MainTab:CreateInput({
    Name = "Walkspeed",
    PlaceholderText = "1-500",
    RemoveTextAfterFocusLost = true,
    Callback = function(Text)
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Text)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = tonumber(Text)
    end,
 })
 
+-- Toggle Fly Button
 local Button = MainTab:CreateButton({
     Name = "Toggle Fly",
     Callback = function()
@@ -207,6 +212,7 @@ local Button = MainTab:CreateButton({
     end,
 })
 
+-- Toggle Spin Button
 local Button = MainTab:CreateButton({
     Name = "Toggle Spin",
     Callback = function()
@@ -229,124 +235,40 @@ local Button = MainTab:CreateButton({
                         -- Sabit hızda spin işlemi
                         local character = game.Players.LocalPlayer.Character
                         if character and character.PrimaryPart then
-                            character:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.Angles(0, math.rad(99), 0))
+                            character:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.Angles(0, math.rad(5), 0))
                         end
                     end
-                    wait(0.05) -- Spin güncelleme süresi
+                    wait(0.05)
                 end
             end)
         end
     end,
 })
 
+-- Toggle NoClip Button
 local Button = MainTab:CreateButton({
-    Name = "Toggle Noclip",
+    Name = "NoClip Toggle",
     Callback = function()
-        -- Noclip'i etkinleştir veya devre dışı bırak
-        _G.noclipActive = not _G.noclipActive
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        local humanoid = character:WaitForChild("Humanoid")
 
-        if _G.noclipStarted == nil then
-            _G.noclipStarted = true
-
-            game.StarterGui:SetCore("SendNotification", {
-                Title = "Qweqny Hub",
-                Text = "Noclip Script Activated!",
-                Duration = 5
-            })
-
-            -- Noclip döngüsü
-            spawn(function()
-                while true do
-                    if _G.noclipActive then
-                        local character = game.Players.LocalPlayer.Character
-                        if character then
-                            for _, v in pairs(character:GetDescendants()) do
-                                if v:IsA("BasePart") and v.CanCollide then
-                                    v.CanCollide = false
-                                end
-                            end
-                        end
-                    else
-                        -- Noclip devre dışı ise CanCollide'ı eski haline getir
-                        local character = game.Players.LocalPlayer.Character
-                        if character then
-                            for _, v in pairs(character:GetDescendants()) do
-                                if v:IsA("BasePart") then
-                                    v.CanCollide = true
-                                end
-                            end
-                        end
-                    end
-                    wait(0.1) -- Daha iyi performans için döngü hızı
-                end
-            end)
+        if humanoid:GetState() == Enum.HumanoidStateType.Physics then
+            humanoid.PlatformStand = false
+        else
+            humanoid.PlatformStand = true
+            character:MoveTo(Vector3.new(9999999, 9999999, 9999999))
         end
     end,
 })
 
-local Input = MainTab:CreateInput({
-   Name = "Player Name for Bang",
-   PlaceholderText = "Player's Name",
-   RemoveTextAfterFocusLost = true,
-   Callback = function(Text)
-       _G.targetPlayer = Text
-   end,
-})
-
+-- Bang Button
 local Button = MainTab:CreateButton({
-    Name = "Toggle Bang",
+    Name = "Bang Button",
     Callback = function()
-        _G.bangActive = not _G.bangActive
-
-        if _G.bangStarted == nil then
-            _G.bangStarted = true
-            
-            game.StarterGui:SetCore("SendNotification", {
-                Title = "Qweqny Hub",
-                Text = "Bang Command Initialized!",
-                Duration = 5
-            })
-
-            -- Loop for Bang Command
-            spawn(function()
-                while true do
-                    if _G.bangActive and _G.targetPlayer then
-                        -- Find Player
-                        local targetPlayer = game.Players:FindFirstChild(_G.targetPlayer)
-
-                        if targetPlayer then
-                            local character = targetPlayer.Character
-                            if character and character:FindFirstChildOfClass("Humanoid") then
-                                local humanoid = character:FindFirstChildOfClass("Humanoid")
-
-                                -- Load and Play Animation
-                                local anim = Instance.new("Animation")
-                                anim.AnimationId = "rbxassetid://148840371" -- Bang animasyonu
-                                local animTrack = humanoid:LoadAnimation(anim)
-                                
-                                animTrack:Play()
-                                wait(3) -- Animation playback duration
-                                animTrack:Stop()
-                            else
-                                -- If Humanoid is Missing
-                                game.StarterGui:SetCore("SendNotification", {
-                                    Title = "Qweqny Hub",
-                                    Text = "Humanoid not found in target player!",
-                                    Duration = 5
-                                })
-                            end
-                        else
-                            -- If Player Name is Invalid
-                            game.StarterGui:SetCore("SendNotification", {
-                                Title = "Qweqny Hub",
-                                Text = "Player not found or invalid name!",
-                                Duration = 5
-                            })
-                        end
-                    end
-                    wait(1)
-                end
-            end)
-        end
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        -- Your Bang logic here (shoot or damage)
+        print("Bang!")
     end,
 })
