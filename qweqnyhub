@@ -283,3 +283,60 @@ local Button = MainTab:CreateButton({
         end
     end,
 })
+
+local Input = MainTab:CreateInput({
+   Name = "Player Name for Bang",
+   PlaceholderText = "Player's Name",
+   RemoveTextAfterFocusLost = true,
+   Callback = function(Text)
+       _G.targetPlayer = Text
+   end,
+})
+
+local Button = MainTab:CreateButton({
+    Name = "Toggle Bang",
+    Callback = function()
+        _G.bangActive = not _G.bangActive
+
+        if _G.bangStarted == nil then
+            _G.bangStarted = true
+            
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Qweqny Hub",
+                Text = "Bang Command Ready!",
+                Duration = 5
+            })
+
+            spawn(function()
+                while true do
+                    if _G.bangActive and _G.targetPlayer then
+                        local targetPlayer = game.Players:FindFirstChild(_G.targetPlayer)
+                        if targetPlayer and targetPlayer.Character then
+                            local character = targetPlayer.Character
+
+                            -- Bang animasyonunun uygulanması
+                            local humanoid = character:FindFirstChildOfClass("Humanoid")
+                            if humanoid then
+                                local anim = Instance.new("Animation")
+                                anim.AnimationId = "rbxassetid://148840371" -- İnfinite Yield'in kullandığı bang animasyonunun ID'si
+                                local animTrack = humanoid:LoadAnimation(anim)
+                                animTrack:Play()
+
+                                -- Animasyon döngüsü
+                                wait(3) -- Animasyon süresini ayarla
+                                animTrack:Stop()
+                            end
+                        else
+                            game.StarterGui:SetCore("SendNotification", {
+                                Title = "Qweqny Hub",
+                                Text = "Player not found or invalid name.",
+                                Duration = 5
+                            })
+                        end
+                    end
+                    wait(1)
+                end
+            end)
+        end
+    end,
+})
