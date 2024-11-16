@@ -229,7 +229,7 @@ local Button = MainTab:CreateButton({
                         -- Sabit hızda spin işlemi
                         local character = game.Players.LocalPlayer.Character
                         if character and character.PrimaryPart then
-                            character:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.Angles(0, math.rad(99), 0))
+                            character:SetPrimaryPartCFrame(character.PrimaryPart.CFrame * CFrame.Angles(0, math.rad(199), 0)) -- Spin hızını 199 yaptım
                         end
                     end
                     wait(0.05) -- Spin güncelleme süresi
